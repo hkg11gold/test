@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <br class="container">
+        <h1>Create</h1>
+        <form id="add-sv">
+            <!-- mssv: {type: String, required: true, unique: true},
+        tensv: {type: String, required: true},
+        ngaynhaphoc: {type: String, required: true},
+        ngayratruong: {type: String, required: true},
+        address: {type: String, required: true,} -->
+            <input type="text" name="mssv" placeholder="mssv">
+            <input type="text" name="tensv" placeholder="tensv">
+            <input type="text" name="ngaynhaphoc" placeholder="ngaynhaphoc">
+            <input type="text" name="ngayratruong" placeholder="ngayratruong">
+            <input type="text" name="address" placeholder="address">
+            <button type="submit">Create</button>
+        </form>
+
+        <h1>Delete</h1>
+        <input type="text" id="deleteInput" placeholder="enter student code ">
+        <button onclick="deleteMssv()">Delete</button>
+
+        <h1>Search</h1>
+        <input type="text" id="searchInput" placeholder="Enter student code">
+        <button onclick="sreachMssv()">Sreach</button>
+
+        <h1>Student info</h1>
+        <table id="infoSv">
+            <thead>
+                <tr>
+
+                    <th>mssv</th> 
+                    <th>tensv</th>
+                    <th>ngaynhaphoc</th>
+                    <th>ngayratruong</th>
+                    <th>address</th>
+
+                </tr>
+            </thead>
+            <tbody id="info"></tbody>
+        </table> </br>
+
+        <h1>Update</h1>
+        <form id="update">
+            <!-- <input type="text" name="mssv" placeholder="mssv"> -->
+            <input type="text" name="tensv" placeholder="tensv">
+            <input type="text" name="ngaynhaphoc" placeholder="ngaynhaphoc">
+            <input type="text" name="ngayratruong" placeholder="ngayratruong">
+            <input type="text" name="address" placeholder="address">
+            <button type="submit">Update Info</button>
+        </form>
+    </div>
+    <script src="/jquery/dist/jquery.min.js"></script>
+    <script>
+        $('#add-sv').submit(function(event){
+            event.preventDefault();
+            var formData = $(this).serialize();
+            console.log('formData', formData)
+            $.ajax({
+                url:'/api/gk/create',
+                method:'POST',
+                data : formData,
+                success: function(response) { 
+                    alert('create success sv !!!');
+                },
+                error: function(xhr, status, error){
+                    alert('fail !!')
+                }
+            })
+        })
+
+        function deleteMssv() {
+            var mssv = $('#deleteInput').val()
+            if(confirm('are you sure to delete')){
+                $.ajax({
+                    url:'/api/gk/delete/' + mssv,
+                    method: 'DELETE',
+                    success: function(response){
+                        alert('delete  ok')
+                    },
+                    error: function(xhr, status, error) {
+                        alert('fail')
+                    }
+                })
+            }
+        }
+
+        function sreachMssv() {
+            var mssv = $('#searchInput').val();
+            $.ajax({
+                url:'/api/gk/get/' + mssv,
+                method:'GET',
+                success: function(response){
+                    $('#info').empty();
+                    if(response){
+                        $('#info').append(`
+                            <tr>
+                                <td>${response.mssv}</td>
+                                <td>${response.tensv}</td>
+                                <td>${response.ngaynhaphoc}</td>
+                                <td>${response.ngayratruong}</td>
+                                <td>${response.address}</td>
+                            </tr>    
+                        `)
+                        $('#update input[name="mssv"], #update input[name="tensv"],#update input[name="ngaynhaphoc"],#update input[name="ngayratruong"],#update input[name="address"]').val(function(){
+                            return response[this.name]
+                        })
+                    } else{
+                        $('#update input[name="mssv"], #update input[name="tensv"],#update input[name="ngaynhaphoc"],#update input[name="ngayratruong"],#update input[name="address"]').val('');
+                        $('#info').append(`<tr>
+                            <td colspan="9"> ${response.message}</td>
+                        </tr>`)
+                    }
+                },
+                error: function(xhr, status, error){
+                    $('#update input[name="mssv"], #update input[name="tensv"],#update input[name="ngaynhaphoc"],#update input[name="ngayratruong"],#update input[name="address"]').val('');
+                    alert('fail')
+                }
+            })
+        }
+
+        $('#update').submit(function(event){
+            var mssv = $('#searchInput').val();
+            event.preventDefault();
+            var formData = $(this).serialize()
+            $.ajax({
+                url:'/api/gk/update/' + mssv,
+                method: 'PUT',
+                data: formData,
+                success: function(response){
+                    alert('ok')
+                },
+                error: function(xhr, status, error){
+                    alert('fail')
+                }
+            })
+        })
+
+    </script>
+    
+</body>
+</html>
